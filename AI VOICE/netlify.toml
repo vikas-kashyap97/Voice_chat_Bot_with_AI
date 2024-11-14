@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"  # Specify the directory for Netlify Functions
+
+[[redirects]]
+  from = "/api/deepgram/*"
+  to = "/.netlify/functions/deepgram"
+  status = 200
+
+[[redirects]]
+  from = "/api/groq/*"
+  to = "/.netlify/functions/groq"
+  status = 200
