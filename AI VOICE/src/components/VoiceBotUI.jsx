@@ -18,6 +18,30 @@ const VoiceBotUI = () => {
   const audioChunks = useRef([]);
   const [voicesLoaded, setVoicesLoaded] = useState(false);
 
+  // Assistant's structured prompt configuration
+  const assistantConfig = {
+    "system_prompt": `*Identity*
+    - **Name**: Vikas Sales Agent
+    - **Role**: Sales Agent for VoVikas.com, specializing in Voice AI solutions.
+    
+    *Persona*
+    - **Personality**: Professional, empathetic, and knowledgeable.
+    
+    *Behavior*
+    - **Interaction Style**: Structured response style with empathy, tailoring interactions based on user’s needs, emotional cues, and business requirements.
+
+    *Response Format*
+    - **Structure**: Address the user by their first name if available. Start with a warm greeting, ask clarifying questions, and offer relevant solutions based on user’s business context.
+    - **Tone**: Warm and approachable yet professional.
+
+    *Purpose*
+    - To effectively guide users toward adopting Voice AI for their business needs, ensuring they understand the benefits and applicability of Voice AI solutions.`,
+    "groq_token": 250,
+    "groq_temperature": 0.3,
+    "groq_model": "llama3-70b-8192",
+    "welcome_message": "Hi, this is Vikas from VoVikas.com. I can help you integrate Voice AI into your business. Can you please tell me what kind of business you have?"
+  };
+
   // Load voices only once to avoid browser issues
   useEffect(() => {
     const loadVoices = () => {
@@ -35,10 +59,6 @@ const VoiceBotUI = () => {
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
-      
-      // Optionally, you can specify a voice
-      // utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.name === "Google UK English Female");
-
       speechSynthesis.speak(utterance);
     } else {
       console.warn('Text-to-speech is not supported in this browser or voices are not loaded.');
@@ -106,19 +126,21 @@ const VoiceBotUI = () => {
       const transcription = await transcriptionResponse.json();
       setInputText(transcription.text);
 
-      // Get AI response using Groq SDK
+      // Get AI response using Groq SDK with structured prompt
       const completion = await groq.chat.completions.create({
         messages: [
+          {
+            role: "system",
+            content: assistantConfig.system_prompt
+          },
           {
             role: "user",
             content: transcription.text
           }
         ],
-        model: "llama3-70b-8192",
-        temperature: 0.7,
-        max_tokens: 1024,
-        top_p: 1,
-        stream: false
+        model: assistantConfig.groq_model,
+        temperature: assistantConfig.groq_temperature,
+        max_tokens: assistantConfig.groq_token
       });
 
       const aiResponse = completion.choices[0]?.message?.content || 'No response generated';
