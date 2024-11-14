@@ -29,9 +29,7 @@ body {
   .heading {
     font-size: 3rem;
     font-weight: bold;
-    background: linear-gradient(45deg, #ff6ec7, #ff8a00);
-    -webkit-background-clip: text;
-    color: transparent;
+    color: linear-gradient(45deg, #ff6ec7, #ff8a00);
     margin-bottom: 30px;
     
   }
