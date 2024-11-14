@@ -1,0 +1,110 @@
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* General Styles for the Voice Bot UI */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  /* Voice Bot Container */
+  .voice-bot-container {
+    max-width: 600px;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Heading Styling */
+  .heading {
+    font-size: 3rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #ff6ec7, #ff8a00);
+    -webkit-background-clip: text;
+    color: transparent;
+    margin-bottom: 30px;
+    
+  }
+  
+  /* Button Styling */
+  .speak-button,
+  .stop-button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+   
+  }
+  
+  .speak-button {
+    background: linear-gradient(45deg, #ff6ec7, #ff8a00);
+    color: white;
+  }
+  .speak-button span, .stop-button span{
+    display: flex;
+    text-align: center;
+  }
+  
+  .stop-button {
+    padding: 10px 26px;
+    background: linear-gradient(45deg, #ff0000, #ff7300);
+    color: white;
+  }
+  
+  .speak-button:hover, .stop-button:hover {
+    opacity: 0.8;
+  }
+  
+  /* Input Section Styling */
+  .input-section,
+  .response-section {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e0e7ff;
+    border-radius: 8px;
+  }
+  
+  .input-title,
+  .response-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .input-text,
+  .response-text {
+    font-size: 1.25rem;
+    color: #333;
+    line-height: 1.6;
+    margin-top: 10px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  
+  /* Typing Effect */
+  .response-text.loading {
+    display: inline-block;
+    width: 0;
+    animation: typing 4s steps(50) 1s forwards;
+  }
+  
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
