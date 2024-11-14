@@ -1,0 +1,28 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "api/deepgram/*.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "api/groq/*.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/deepgram/(.*)",
+        "dest": "/api/deepgram/$1"
+      },
+      {
+        "src": "/api/groq/(.*)",
+        "dest": "/api/groq/$1"
+      }
+    ],
+    "env": {
+      "DEEPGRAM_API_KEY": "13079804c37916dbd0557263d8a523d00989c64b",
+      "GROQ_API_KEY": "@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"
+    }
+  }
+  
