@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, Quote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Groq from 'groq-sdk';
 
 // Initialize Groq client with browser support
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true  // Enable browser usage
+  dangerouslyAllowBrowser: true, // Enable browser usage
 });
 
 const VoiceBotUI = () => {
@@ -14,63 +14,98 @@ const VoiceBotUI = () => {
   const [inputText, setInputText] = useState('');
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      type: 'bot',
+      text: 'Hi, I can help you integrate Voice AI into your business. Can you please tell me what kind of business you have?',
+    },
+  ]);
   const mediaRecorder = useRef(null);
   const audioChunks = useRef([]);
   const [voicesLoaded, setVoicesLoaded] = useState(false);
 
-  // Assistant's structured prompt configuration
   const assistantConfig = {
-    "system_prompt": `*Identity*
-    - **Name**: Vikas Sales Agent
-    - **Role**: Sales Agent for VoVikas.com, specializing in Voice AI solutions.
+    system_prompt: `*Identity*
+    - **Name**: Vikas
+    - **Role**: Personal Assistant specializing in Artificial Intelligence solutions.
     
     *Persona*
-    - **Personality**: Professional, empathetic, and knowledgeable.
+    - **Personality**: Professional, empathetic, approachable, and highly knowledgeable in Artificial Intelligence.
     
     *Behavior*
-    - **Interaction Style**: Structured response style with empathy, tailoring interactions based on user’s needs, emotional cues, and business requirements.
-
+    - **Interaction Style**: 
+      - Tailors responses based on the user's specific needs and emotional cues.
+      - Offers clear and concise guidance with an empathetic and solutions-oriented approach.
+      - Balances warmth with professionalism to ensure an engaging and helpful user experience.
+    - **Communication Focus**: 
+      - Explains complex concepts in simple, understandable terms.
+      - Anticipates user needs and provides proactive suggestions.
+  
     *Response Format*
-    - **Structure**: Address the user by their first name if available. Start with a warm greeting, ask clarifying questions, and offer relevant solutions based on user’s business context.
-    - **Tone**: Warm and approachable yet professional.
-
+    - **Greeting**: Always begins with a warm and welcoming tone.
+    - **Structure**:
+      1. Acknowledge the user's query or need.
+      2. Ask relevant clarifying questions to gather details.
+      3. Provide a solution tailored to the user's context.
+      4. Offer additional resources or next steps if applicable.
+    - **Tone**: Friendly, professional, and approachable.
+    
     *Purpose*
-    - To effectively guide users toward adopting Voice AI for their business needs, ensuring they understand the benefits and applicability of Voice AI solutions.`,
-    "groq_token": 250,
-    "groq_temperature": 0.3,
-    "groq_model": "llama3-70b-8192",
-    "welcome_message": "Hi, this is Vikas from VoVikas.com. I can help you integrate Voice AI into your business. Can you please tell me what kind of business you have?"
+    - To guide users in adopting and leveraging solutions effectively for their unique requirements.
+    - To ensure users understand the tangible benefits and practical applications of Artificial Intelligence in their personal or professional scenarios.
+    - To build trust and establish Vikas as a reliable, knowledgeable, and friendly personal assistant.`,
+  
+    groq_token: 100,  // Set to 100 for short but complete responses
+    groq_temperature: 0.3,  // Ensures the response is straightforward and concise
+    groq_model: 'llama3-70b-8192',
+    welcome_message: `Hello! I’m Vikas, your personal assistant specializing in Artificial Intelligence. How can I assist you today? Whether you need guidance, insights, or solutions, I'm here to help.`,
   };
+  
 
-  // Load voices only once to avoid browser issues
   useEffect(() => {
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
       if (voices.length > 0) setVoicesLoaded(true);
     };
+
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    // Cleanup to stop speech synthesis on component unmount
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stops any ongoing speech
+      }
+    };
   }, []);
 
-  // Function to handle text-to-speech with queue clearing
   const speakResponse = (text) => {
     if ('speechSynthesis' in window && voicesLoaded) {
       window.speechSynthesis.cancel(); // Clear any ongoing speech
-
+  
+      const voices = window.speechSynthesis.getVoices();
+      console.log('Available voices:', voices.map((voice) => `${voice.name} (${voice.lang})`));
+  
+      // Example of a sweet and light female voice, adjust the name as per your system/browser
+      const preferredVoiceName = 'Google UK English Male'; // Update this to test other voices
+      const selectedVoice = voices.find((voice) => voice.name === preferredVoiceName) || voices[0]; // Fallback to the first available voice
+  
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
+      utterance.rate = 1.0; // Adjust speed for natural sound
+      utterance.voice = selectedVoice;
       speechSynthesis.speak(utterance);
     } else {
       console.warn('Text-to-speech is not supported in this browser or voices are not loaded.');
     }
   };
+  
 
-  // Trigger text-to-speech whenever response is updated
   useEffect(() => {
-    if (response) {
+    if (response && voicesLoaded) {
       speakResponse(response);
     }
-  }, [response]);
+  }, [response, voicesLoaded]);
 
   const startListening = async () => {
     try {
@@ -98,25 +133,23 @@ const VoiceBotUI = () => {
     if (mediaRecorder.current && isListening) {
       mediaRecorder.current.stop();
       setIsListening(false);
-      mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorder.current.stream.getTracks().forEach((track) => track.stop());
     }
   };
 
   const processAudio = async (audioBlob) => {
     setIsLoading(true);
     try {
-      // Create FormData for the audio file
       const formData = new FormData();
       formData.append('file', audioBlob, 'audio.wav');
       formData.append('model', 'whisper-large-v3-turbo');
 
-      // Transcribe audio using Groq API
       const transcriptionResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+          Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
         },
-        body: formData
+        body: formData,
       });
 
       if (!transcriptionResponse.ok) {
@@ -126,28 +159,27 @@ const VoiceBotUI = () => {
       const transcription = await transcriptionResponse.json();
       setInputText(transcription.text);
 
-      // Get AI response using Groq SDK with structured prompt
       const completion = await groq.chat.completions.create({
         messages: [
-          {
-            role: "system",
-            content: assistantConfig.system_prompt
-          },
-          {
-            role: "user",
-            content: transcription.text
-          }
+          { role: 'system', content: assistantConfig.system_prompt },
+          { role: 'user', content: transcription.text },
         ],
         model: assistantConfig.groq_model,
         temperature: assistantConfig.groq_temperature,
-        max_tokens: assistantConfig.groq_token
+        max_tokens: assistantConfig.groq_token,
       });
 
       const aiResponse = completion.choices[0]?.message?.content || 'No response generated';
       setResponse(aiResponse);
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'user', text: transcription.text },
+        { type: 'bot', text: aiResponse },
+      ]);
     } catch (error) {
       console.error('Error processing audio:', error);
-      setResponse(`Error processing your request: ${error.message}`);
+      setResponse(`Apologies, I encountered an error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -155,40 +187,38 @@ const VoiceBotUI = () => {
 
   return (
     <div className="voice-bot-container">
-      <h1 className="heading">AI Voice Bot</h1>
-
-      <div className="controls">
-        <Button 
-          onClick={startListening} 
-          disabled={isListening || isLoading}
-          className="flex items-center space-x-2 speak-button"
-        >
-          <Mic className="w-5 h-5" />
-          <span>Speak</span>
-        </Button>
-        
-        <Button 
-          onClick={stopListening} 
-          disabled={!isListening || isLoading}
-          variant="destructive"
-          className="flex items-center space-x-2 stop-button"
-        >
-          <MicOff className="w-5 h-5" />
-          <span>Stop</span>
-        </Button>
+      <div className="header">
+        <h1>Voice AI Agent</h1>
       </div>
-
-      <div className="content">
-        <div className="input-section">
-          <h2 className="input-title">Your Input:</h2>
-          <p className="input-text">{inputText || 'Speak something...'}</p>
-        </div>
-
-        <div className="response-section">
-          <h2 className="response-title">AI Response:</h2>
-          <p className={`response-text ${isLoading ? 'loading' : ''}`}>
-            {response || 'AI response will appear here...'}
-          </p>
+  
+      <div className="microphone-circle">
+        <button
+          onClick={isListening ? stopListening : startListening}
+          className={`microphone-button ${isListening ? 'listening' : ''}`}
+          disabled={isLoading}
+        >
+          {isListening ? <MicOff className="icon" /> : <Quote className="icon" />}
+        </button>
+      </div>
+  
+      <div className="chat-messages">
+        {messages.map((message, index) => (
+          <div key={index} className={`message ${message.type === 'bot' ? 'bot' : 'user'}`}>
+            <p>{message.text}</p>
+          </div>
+        ))}
+      </div>
+  
+      <div className="input-area">
+        <div className="input-wrapper">
+          <input
+            type="text"
+            placeholder="Click the icon to speak"
+            value={isListening ? 'Listening...' : ''}
+            readOnly
+            className={`text-input ${isListening ? 'listening' : ''}`}
+            disabled={isLoading}
+          />
         </div>
       </div>
     </div>
