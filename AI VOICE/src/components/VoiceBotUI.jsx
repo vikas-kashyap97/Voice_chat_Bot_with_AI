@@ -3,6 +3,8 @@ import { Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Groq from 'groq-sdk';
 
+
+
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
   dangerouslyAllowBrowser: true,
@@ -221,21 +223,23 @@ const VoiceBotUI = () => {
       <div className="header mb-4">
         <h1 className="text-2xl font-bold text-center">Voice AI Assistant</h1>
       </div>
-
-      <div className="chat-messages space-y-4 mb-4 h-[400px] overflow-y-auto">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`message p-3 rounded-lg ${
-              message.role === 'assistant'
-                ? 'bg-blue-100 ml-auto max-w-[80%]'
-                : 'bg-gray-100 mr-auto max-w-[80%]'
-            }`}
-          >
-            <p>{message.displayText}</p>
-          </div>
-        ))}
+      <div className="chat-messages">
+  <div className="space-y-4 mb-4 h-[400px] overflow-y-auto">
+    {messages.map((message) => (
+      <div
+        key={message.id}
+        className={`message p-3 rounded-lg ${
+          message.role === 'assistant'
+            ? 'bg-blue-100 ml-auto max-w-[80%]'
+            : 'bg-gray-100 mr-auto max-w-[80%]'
+        }`}
+      >
+        <p>{message.displayText}</p>
       </div>
+    ))}
+  </div>
+</div>
+
 
       <div className="input-area">
         <div className="input-wrapper relative">
@@ -267,12 +271,6 @@ const VoiceBotUI = () => {
 };
 
 export default VoiceBotUI;
-
-
-
-
-
-
 
 
 
