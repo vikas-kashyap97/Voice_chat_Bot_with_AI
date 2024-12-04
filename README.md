@@ -3,6 +3,9 @@
 ## Overview
 This project is an advanced web application built using **React**, **Vite**, and **Tailwind CSS**. It integrates voice interaction and Optical Character Recognition (OCR) to create an intelligent assistant capable of processing voice commands and extracting text from images. The assistant supports real-time transcription, AI-powered responses, and can convert images into Markdown-formatted text.
 
+## Live Demo
+You can view the live demo of this project [here](https://voicebot-ai.netlify.app/).
+
 ## Project Features
 - **Voice Interaction**: Records user audio and provides voice responses using browser APIs and Deepgram.
 - **AI-Powered Responses**: Integrates with **Groq** for natural language processing and generating intelligent responses.
