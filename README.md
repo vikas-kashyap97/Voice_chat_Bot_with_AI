@@ -27,12 +27,12 @@ Ensure that **Node.js** and **npm** are installed on your machine.
 ### Step-by-step Guide
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/ai-voice-ocr.git
+    git clone https://github.com/vikas-kashyap97/Voice_chat_Bot_with_AI.git
     ```
 
 2. **Navigate to the project directory**:
     ```bash
-    cd ai-voice-ocr
+    cd Voice_chat_Bot_with_AI
     ```
 
 3. **Install dependencies**:
